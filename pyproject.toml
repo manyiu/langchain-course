@@ -1,0 +1,26 @@
+[project]
+name = "langchain-course"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Man Yiu", email = "11912398+manyiu@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "azure-identity>=1.25.3",
+    "black>=26.5.1",
+    "isort>=9.0.2",
+    "langchain>=1.4.3",
+    "langchain-azure-ai>=1.2.10",
+    "langchain-ollama>=1.1.0",
+    "langchain-openai>=1.6.7",
+    "python-dotenv>=1.2.4",
+]
+
+[project.scripts]
+langchain-course = "langchain_course:main"
+
+[build-system]
+requires = ["uv_build>=0.12.21,<0.13.0"]
+build-backend = "uv_build"
