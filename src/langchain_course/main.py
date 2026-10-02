@@ -1,14 +1,16 @@
 import os
+from typing import List
+
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain.tools import tool
 from langchain_core.messages import HumanMessage
-from langchain_openai import ChatOpenAI
 from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
 # from tavily import TavilyClient
 from langchain_tavily import TavilySearch
-
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from pydantic import BaseModel, Field
 
 load_dotenv()
 
@@ -28,7 +30,23 @@ token_provider = get_bearer_token_provider(
 # )
 
 # Ollama LLM
-llm = ChatOllama(model="gpt-oss:20b")
+llm = ChatOllama(model="qwen3.8:27b-mlx")
+
+
+class Source(BaseModel):
+    """Schema for a source used by the agent"""
+
+    url: str = Field(description="The URL of the source")
+
+
+class AgentResponse(BaseModel):
+    """Schema for agent response with answer and sources"""
+
+    answer: str = Field(description="The answer to the user's question")
+    sources: List[Source] = Field(
+        default_factory=list, description="The sources URLs used to answer the question"
+    )
+
 
 # tavily = TavilyClient()
 
@@ -44,15 +62,20 @@ llm = ChatOllama(model="gpt-oss:20b")
 #     print(f"Searching for {query}")
 #     return tavily.search(query)
 
-
-
 tools = [TavilySearch()]
 
-agent = create_agent(model=llm, tools=tools)
+agent = create_agent(model=llm, tools=tools, response_format=AgentResponse)
+
 
 def main() -> None:
     print("Hello from langchain-course!")
-    result = agent.invoke({"messages": HumanMessage(content="Search for 3 job openings in the field of full stack development in Hong Kong.")})
+    result = agent.invoke(
+        {
+            "messages": HumanMessage(
+                content="Search for 3 job openings in the field of full stack development in Hong Kong."
+            )
+        }
+    )
     print(result)
 
 
